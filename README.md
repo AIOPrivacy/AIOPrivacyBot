@@ -132,5 +132,5 @@
 [issues-shield]: https://img.shields.io/github/issues/iuu6/AIOPrivacyBot.svg?style=for-the-badge
 [issues-url]: https://github.com/iuu6/AIOPrivacyBot/issues
 [license-shield]: https://img.shields.io/github/license/iuu6/AIOPrivacyBot.svg?style=for-the-badge
-[license-url]: https://github.com/iuu6/AIOPrivacyBot/blob/master/LICENSE.txt
+[license-url]: https://github.com/iuu6/AIOPrivacyBot/blob/master/LICENSE
 [product-screenshot]: images/screenshot.png
