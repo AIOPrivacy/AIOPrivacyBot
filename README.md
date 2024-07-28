@@ -58,10 +58,9 @@
 
 
 
-<!-- ABOUT THE PROJECT -->
 ## 关于此项目
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+[Product Name Screen Shot][product-screenshot]]
 
 xxxxxxxxxxxx
 
@@ -79,7 +78,6 @@ This section should list any major frameworks/libraries used to bootstrap your p
 
 
 
-<!-- GETTING STARTED -->
 ## 快速开始
 
 ### 先决条件
@@ -92,14 +90,12 @@ This section should list any major frameworks/libraries used to bootstrap your p
 
 
 
-<!-- USAGE EXAMPLES -->
 ## 用法
 
 您可以向机器人发送`/help`来获取有关帮助文档。
 
 
 
-<!-- ROADMAP -->
 ## 功能路线
 
 - [x] Add Changelog
@@ -116,7 +112,6 @@ See the [open issues](https://github.com/iuu6/AIOPrivacyBot/issues) for a full l
 
 
 
-<!-- CONTRIBUTING -->
 
 ## 贡献指南
 
