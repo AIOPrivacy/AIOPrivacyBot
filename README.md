@@ -1,11 +1,12 @@
 <a id="readme-top"></a>
 
+<div align="center">
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![GPL-3.0 License][license-shield]][license-url]
-
+</div>
 
 <br />
 
@@ -37,7 +38,7 @@
     <li>
       <a href="#关于此项目">关于此项目</a>
       <ul>
-        <li><a href="#由谁构建？">由谁构建？</a></li>
+        <li><a href="#由谁构建">由谁构建</a></li>
       </ul>
     </li>
     <li>
@@ -66,7 +67,7 @@ xxxxxxxxxxxx
 
 
 
-### 由谁构建？
+### 由谁构建
 
 This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
 
