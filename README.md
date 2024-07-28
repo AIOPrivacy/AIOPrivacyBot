@@ -60,9 +60,11 @@
 
 ## 关于此项目
 
-[Product Name Screen Shot][product-screenshot]]
+![Product Name Screen Shot][product-screenshot]]
 
-xxxxxxxxxxxx
+本项目一直开启Telegram Bot自带的Privacy Mode，不赋予管理员权限的情况下，只可以读取@机器人的指令和回复机器人的消息，从而极大保护用户隐私。
+
+各类需要处理的消息也**将**会采用签名的方法保证消息未篡改，并对部分敏感数据进行哈希加盐。
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -70,9 +72,7 @@ xxxxxxxxxxxx
 
 ### 由谁构建
 
-This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
-
-
+本项目主要由Golang语言构建
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -98,15 +98,14 @@ This section should list any major frameworks/libraries used to bootstrap your p
 
 ## 功能路线
 
-- [x] Add Changelog
-- [x] Add back to top links
-- [ ] Add Additional Templates w/ Examples
-- [ ] Add "components" document to easily copy & paste sections of the readme
-- [ ] Multi-language Support
-    - [ ] Chinese
-    - [ ] Spanish
-
-See the [open issues](https://github.com/iuu6/AIOPrivacyBot/issues) for a full list of proposed features (and known issues).
+- [x] 动作触发功能
+- [x] AI聊天触发功能
+- [ ] 帮助用户查看ID功能
+- [ ] 功能开关支持
+- [ ] 多语言支持
+- [ ] 各类网址的安全检测
+- [ ] CSDN/吾爱破解/知乎/……等等诸多内容网站的内容下载存储到telegraph，避免隐私窃取
+- [ ] 音视频平台内容下载存储到telegraph，避免隐私窃取
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
