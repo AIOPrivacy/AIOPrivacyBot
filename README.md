@@ -60,7 +60,7 @@
 
 ## 关于此项目
 
-![Product Name Screen Shot][product-screenshot]]
+![Product Name Screen Shot][product-screenshot]
 
 本项目一直开启Telegram Bot自带的Privacy Mode，不赋予管理员权限的情况下，只可以读取@机器人的指令和回复机器人的消息，从而极大保护用户隐私。
 
