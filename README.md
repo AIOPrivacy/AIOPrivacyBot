@@ -88,13 +88,13 @@
 
 直接运行构建后的二进制文件即可。
 
-
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 用法
 
 您可以向机器人发送`/help`来获取有关帮助文档。
 
-
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 功能路线
 
