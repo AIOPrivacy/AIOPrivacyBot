@@ -2,12 +2,13 @@ package main
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
 	"log"
 	"os"
 	"strings"
 
-	"AIOPrivacyBot/functions"
+	"AIOPrivacyBot/functions/help"
+	"AIOPrivacyBot/functions/play"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -17,30 +18,31 @@ type Config struct {
 	SuperAdmins []string `json:"super_admins"`
 }
 
-func loadConfig() Config {
+var (
+	botUsername string
+	config      Config
+)
+
+func main() {
 	file, err := os.Open("config.json")
 	if err != nil {
 		log.Fatalf("Error opening config file: %v", err)
 	}
 	defer file.Close()
 
-	byteValue, _ := ioutil.ReadAll(file)
-
-	var config Config
-	json.Unmarshal(byteValue, &config)
-
-	return config
-}
-
-func main() {
-	config := loadConfig()
-	bot, err := tgbotapi.NewBotAPI(config.Token)
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&config)
 	if err != nil {
-		log.Panic(err)
+		log.Fatalf("Error decoding config file: %v", err)
 	}
 
-	bot.Debug = true
-	botID := bot.Self.ID
+	bot, err := tgbotapi.NewBotAPI(config.Token)
+	if err != nil {
+		log.Fatalf("Error creating new bot: %v", err)
+	}
+
+	botUsername = bot.Self.UserName
+	log.Printf("Authorized on account %s", botUsername)
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
@@ -49,23 +51,21 @@ func main() {
 
 	for update := range updates {
 		if update.Message != nil {
-			go handleUpdate(bot, update.Message, botID)
+			log.Printf("Received message from %s: %s", update.Message.From.UserName, update.Message.Text)
+			processMessage(update.Message, bot)
 		}
 	}
 }
 
-func handleUpdate(bot *tgbotapi.BotAPI, message *tgbotapi.Message, botID int64) {
-	text := message.Text
-	if strings.HasPrefix(text, "//") || (strings.HasPrefix(text, "/") && !strings.HasPrefix(text, "/$")) {
-		if strings.HasPrefix(text, "/") && functions.IsAlphanumeric(text[1:]) {
-			return
+func processMessage(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
+	log.Printf("Processing message from %s: %s", message.From.UserName, message.Text)
+
+	if message.IsCommand() {
+		command := message.Command()
+		if command == "help" && (message.Chat.IsPrivate() || strings.Contains(message.Text, fmt.Sprintf("@%s", botUsername))) {
+			help.SendHelpMessage(message, bot)
+		} else if command == "play" && strings.Contains(message.Text, fmt.Sprintf("@%s", botUsername)) {
+			play.HandlePlayCommand(message, bot)
 		}
-		functions.HandleSlashCommands(bot, message)
-	} else if strings.HasPrefix(text, "/$") {
-		functions.HandleDollarCommand(bot, message)
-	} else if message.ReplyToMessage != nil && message.ReplyToMessage.From.ID == botID {
-		functions.HandleAIChat(bot, message)
-	} else {
-		// Here you can add more handling for other types of messages in the future
 	}
 }
