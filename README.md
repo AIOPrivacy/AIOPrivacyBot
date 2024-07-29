@@ -94,12 +94,34 @@
 
 您可以向机器人发送`/help`来获取有关帮助文档。
 
+### /play 动作触发功能
+
+以下演示都以**A回复B**模拟！
+
+#### 主动模式
+
+`/play@AIOPrivacyBot -t xxxxx` 可以成功触发`A xxxxx了 B！`
+
+`/play@AIOPrivacyBot -t xxxxx yyyyy` 可以成功触发`A xxxxx B yyyyy`
+
+#### 被动模式
+
+`/play@AIOPrivacyBot -p xxxxx` 可以成功触发`A 被 B xxxxx了！`
+
+`/play@AIOPrivacyBot -p xxxxx yyyyy` 可以成功触发`B xxxxx A yyyyy`
+
+#### 备注
+注意：可以使用英文'或"包括发送内容来高于空格优先级，例如`/play@AIOPrivacyBot -p "xx xxx" "yy yy y"`
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 功能路线
 
-- [x] 动作触发功能
-- [x] AI聊天触发功能
+- [x] 指令化重构
+- [x] /play 动作触发功能
+- [x] 随机 AI聊天触发功能
+- [x] /ask AI提问学术问题
+- [x] /help 帮助中心
 - [ ] 帮助用户查看ID功能
 - [ ] 功能开关支持
 - [ ] 多语言支持
