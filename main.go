@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"AIOPrivacyBot/functions/ai_chat"
+	"AIOPrivacyBot/functions/ask"
 	"AIOPrivacyBot/functions/help"
 	"AIOPrivacyBot/functions/play"
 
@@ -69,6 +70,8 @@ func processMessage(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 			help.SendHelpMessage(message, bot)
 		} else if command == "play" && strings.Contains(message.Text, fmt.Sprintf("@%s", botUsername)) {
 			play.HandlePlayCommand(message, bot)
+		} else if command == "ask" && (message.Chat.IsPrivate() || strings.Contains(message.Text, fmt.Sprintf("@%s", botUsername))) {
+			ask.HandleAskCommand(message, bot)
 		}
 	} else if (message.Chat.IsGroup() || message.Chat.IsSuperGroup()) && isReplyToBot(message) && shouldTriggerResponse() {
 		ai_chat.HandleAIChat(message, bot)
