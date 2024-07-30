@@ -113,16 +113,22 @@
 #### 备注
 注意：可以使用英文'或"包括发送内容来高于空格优先级，例如`/play@AIOPrivacyBot -p "xx xxx" "yy yy y"`
 
+### /ask AI提问学术问题
+
+在私聊或群聊中均可使用，发送`/ask@AIOPrivacyBot`即可触发，调用gpt-4o-mini来解决较为严谨的学术问题
+
+
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 功能路线
 
 - [x] 指令化重构
 - [x] /play 动作触发功能
-- [x] 随机 AI聊天触发功能
+- [x] 回复随机触发 AI聊天触发功能
 - [x] /ask AI提问学术问题
 - [x] /help 帮助中心
-- [ ] 帮助用户查看ID功能
+- [x] /getid 帮助用户查看ID等的功能
 - [ ] 功能开关支持
 - [ ] 多语言支持
 - [ ] 各类网址的安全检测
