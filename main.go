@@ -14,6 +14,7 @@ import (
 	"AIOPrivacyBot/functions/getid"
 	"AIOPrivacyBot/functions/help"
 	"AIOPrivacyBot/functions/play"
+	"AIOPrivacyBot/functions/status"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -75,6 +76,8 @@ func processMessage(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 			ask.HandleAskCommand(message, bot)
 		} else if command == "getid" && (message.Chat.IsPrivate() || strings.Contains(message.Text, fmt.Sprintf("@%s", botUsername))) {
 			getid.HandleGetIDCommand(message, bot, config.SuperAdmins)
+		} else if command == "status" && (message.Chat.IsPrivate() || strings.Contains(message.Text, fmt.Sprintf("@%s", botUsername))) {
+			status.HandleStatusCommand(message, bot)
 		}
 	} else if (message.Chat.IsGroup() || message.Chat.IsSuperGroup()) && isReplyToBot(message) && shouldTriggerResponse() {
 		ai_chat.HandleAIChat(message, bot)
