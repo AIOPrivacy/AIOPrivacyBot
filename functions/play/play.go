@@ -13,7 +13,7 @@ import (
 
 func HandlePlayCommand(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 	if message.Chat.IsPrivate() {
-		err := utils.SendMessage(message.Chat.ID, "此命令只可用于群组", bot)
+		err := utils.SendMessage(message.Chat.ID, "此命令只可用于群组", message.MessageID, bot)
 		if err != nil {
 			log.Printf("Error sending message: %v", err)
 		}
@@ -21,7 +21,7 @@ func HandlePlayCommand(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 	}
 
 	if message.CommandArguments() == "" {
-		err := utils.SendMessage(message.Chat.ID, "需要使用参数", bot)
+		err := utils.SendMessage(message.Chat.ID, "需要使用参数", message.MessageID, bot)
 		if err != nil {
 			log.Printf("Error sending message: %v", err)
 		}
@@ -31,7 +31,7 @@ func HandlePlayCommand(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 	args := parseArguments(message.CommandArguments())
 
 	if len(args) < 2 {
-		err := utils.SendMessage(message.Chat.ID, "需要更多参数", bot)
+		err := utils.SendMessage(message.Chat.ID, "需要更多参数", message.MessageID, bot)
 		if err != nil {
 			log.Printf("Error sending message: %v", err)
 		}
@@ -66,7 +66,7 @@ func HandlePlayCommand(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 		}
 	}
 
-	err := utils.SendMessage(message.Chat.ID, response, bot)
+	err := utils.SendMessage(message.Chat.ID, response, message.MessageID, bot)
 	if err != nil {
 		log.Printf("Error sending message: %v", err)
 	}

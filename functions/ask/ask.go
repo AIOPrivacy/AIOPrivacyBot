@@ -63,12 +63,12 @@ func HandleAskCommand(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 			log.Fatalf("Error parsing AI response: %v", err)
 		}
 
-		err = utils.SendMessage(message.Chat.ID, combinedMessage, bot)
+		err = utils.SendMarkdownMessage(message.Chat.ID, message.MessageID, combinedMessage, bot)
 		if err != nil {
 			log.Printf("Error sending AI response: %v", err)
 		}
 	} else {
-		utils.SendMessage(message.Chat.ID, "请发送 /ask@botusername 你要说的内容", bot)
+		utils.SendMarkdownMessage(message.Chat.ID, message.MessageID, "请发送 /ask@botusername 你要说的内容", bot)
 	}
 }
 

@@ -66,7 +66,7 @@ func HandleAIChat(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 		log.Fatalf("Error parsing AI response: %v", err)
 	}
 
-	err = utils.SendMessage(message.Chat.ID, combinedMessage, bot)
+	err = utils.SendMarkdownMessage(message.Chat.ID, message.MessageID, combinedMessage, bot)
 	if err != nil {
 		log.Printf("Error sending AI response: %v", err)
 	}
@@ -137,7 +137,12 @@ func parseAIResponse(responseBody io.Reader) (string, error) {
 			log.Printf("Error unmarshaling AI response chunk: %v", err)
 			continue
 		}
-		combinedMessage += aiResponseChunk.Choices[0].Delta.Content
+		content := aiResponseChunk.Choices[0].Delta.Content
+
+		// Remove only the specific invalid character
+		content = strings.ReplaceAll(content, "�", "")
+
+		combinedMessage += content
 	}
 	return combinedMessage, nil
 }

@@ -8,7 +8,7 @@ import (
 )
 
 // SendPhotoWithCaption 发送带有文字的图片
-func SendPhotoWithCaption(chatID int64, photoPath, caption string, bot *tgbotapi.BotAPI) error {
+func SendPhotoWithCaption(chatID int64, messageID int, photoPath, caption string, bot *tgbotapi.BotAPI) error {
 	log.Printf("Sending photo with caption to chat ID %d: %s", chatID, caption)
 
 	photoFile, err := os.Open(photoPath)
@@ -23,6 +23,7 @@ func SendPhotoWithCaption(chatID int64, photoPath, caption string, bot *tgbotapi
 		Reader: photoFile,
 	})
 	photo.Caption = caption
+	photo.ReplyToMessageID = messageID // 设置回复消息ID
 	_, err = bot.Send(photo)
 	if err != nil {
 		log.Printf("Error sending photo: %v", err)
@@ -34,15 +35,32 @@ func SendPhotoWithCaption(chatID int64, photoPath, caption string, bot *tgbotapi
 }
 
 // SendMessage 发送文本消息
-func SendMessage(chatID int64, text string, bot *tgbotapi.BotAPI) error {
+func SendMessage(chatID int64, text string, messageID int, bot *tgbotapi.BotAPI) error {
 	log.Printf("Sending message to chat ID %d: %s", chatID, text)
 	msg := tgbotapi.NewMessage(chatID, text)
 	msg.ParseMode = "HTML"
+	msg.ReplyToMessageID = messageID // 设置回复消息ID
 	_, err := bot.Send(msg)
 	if err != nil {
 		log.Printf("Error sending message: %v", err)
 		return err
 	}
 	log.Printf("Message sent successfully to chat ID %d", chatID)
+	return nil
+}
+
+// SendMarkdownMessage 发送 Markdown 格式的文本消息，并回复到用户
+func SendMarkdownMessage(chatID int64, messageID int, text string, bot *tgbotapi.BotAPI) error {
+	log.Printf("Sending Markdown message to chat ID %d: %s", chatID, text)
+	msg := tgbotapi.NewMessage(chatID, text)
+	msg.ParseMode = "Markdown"       // 使用 Markdown 解析模式
+	msg.ReplyToMessageID = messageID // 回复到原始消息
+
+	_, err := bot.Send(msg)
+	if err != nil {
+		log.Printf("Error sending Markdown message: %v", err)
+		return err
+	}
+	log.Printf("Markdown message sent successfully to chat ID %d", chatID)
 	return nil
 }

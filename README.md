@@ -117,7 +117,17 @@
 
 在私聊或群聊中均可使用，发送`/ask@AIOPrivacyBot`即可触发，调用gpt-4o-mini来解决较为严谨的学术问题
 
+### /getid 用户查看ID信息功能
 
+您可以在私聊或群聊中发送`/getid@AIOPrivacyBot`或`/getid`，来获取自己和群组详细的Telegram ID等信息
+
+### /status 查看系统信息
+
+您可以在私聊或群聊中发送`/status@AIOPrivacyBot`或`/status`，来查看机器人和系统的运行状态
+
+### 回复随机触发 AI聊天触发功能
+
+可调整概率的出现**笨笨的猫娘**AI玩耍！
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -128,11 +138,11 @@
 - [x] 回复随机触发 AI聊天触发功能
 - [x] /ask AI提问学术问题
 - [x] /help 帮助中心
-- [x] /getid 帮助用户查看ID等的功能
+- [x] /getid 用户查看ID信息功能
 - [x] /status 查看系统信息
 - [ ] 功能开关支持
 - [ ] 多语言支持
-- [ ] 各类网址的安全检测
+- [ ] 各类网址的安全检测/过滤
 - [ ] CSDN/吾爱破解/知乎/……等等诸多内容网站的内容下载存储到telegraph，避免隐私窃取
 - [ ] 音视频平台内容下载存储到telegraph，避免隐私窃取
 

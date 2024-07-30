@@ -44,5 +44,5 @@ func HandleGetIDCommand(message *tgbotapi.Message, bot *tgbotapi.BotAPI, configS
 			user.UserName, user.FirstName, user.LastName, user.ID, isSuperAdmin)
 	}
 
-	utils.SendMessage(message.Chat.ID, response, bot)
+	utils.SendMessage(message.Chat.ID, response, message.MessageID, bot) // 传递 messageID
 }

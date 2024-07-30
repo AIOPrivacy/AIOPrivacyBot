@@ -1,6 +1,7 @@
 package status
 
 import (
+	"AIOPrivacyBot/utils"
 	"fmt"
 	"log"
 	"runtime"
@@ -63,9 +64,7 @@ func getStatus() string {
 • <b>CPU 占用:</b> %.2f%%
 • <b>内存占用:</b> %.2f MB / %.2f MB
 • <b>交换内存:</b> %.2f MB / %.2f MB
-• <b>1分钟负载:</b> %.2f
-• <b>5分钟负载:</b> %.2f
-• <b>15分钟负载:</b> %.2f
+• <b>1/5/15分钟负载:</b> %.2f / %.2f / %.2f
 • <b>Go 版本:</b> %s
 • <b>Goroutine 数量:</b> %d
 `,
@@ -86,9 +85,7 @@ func getStatus() string {
 
 func HandleStatusCommand(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 	status := getStatus()
-	msg := tgbotapi.NewMessage(message.Chat.ID, status)
-	msg.ParseMode = "HTML"
-	_, err := bot.Send(msg)
+	err := utils.SendMessage(message.Chat.ID, status, message.MessageID, bot)
 	if err != nil {
 		log.Printf("Error sending message: %v", err)
 	}
