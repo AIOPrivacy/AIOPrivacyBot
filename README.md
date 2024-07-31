@@ -28,7 +28,6 @@
     ·
     <a href="https://github.com/iuu6/AIOPrivacyBot/issues">报告错误/提出更多内容</a>
   </p>
-
 </div>
 
 
@@ -129,6 +128,16 @@
 
 可调整概率的出现**笨笨的猫娘**AI玩耍！
 
+### 各类网址的安全过滤/检测
+
+机器人Inline模式下运作，您可以这样调用
+
+```
+@AIOPrivacyBot -check https://www.amazon.com/dp/exampleProduct/ref=sxin_0_pb?__mk_de_DE=%C3%85M%C3%85%C5%BD%C3%95%C3%91&keywords=tea&pd_rd_i=exampleProduct&pd_rd_r=8d39e4cd-1e4f-43db-b6e7-72e969a84aa5&pd_rd_w=1pcKM&pd_rd_wg=hYrNl&pf_rd_p=50bbfd25-5ef7-41a2-68d6-74d854b30e30&pf_rd_r=0GMWD0YYKA7X
+```
+
+
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 功能路线
@@ -142,7 +151,8 @@
 - [x] /status 查看系统信息
 - [ ] 功能开关支持
 - [ ] 多语言支持
-- [ ] 各类网址的安全检测/过滤
+- [ ] 各类网址的安全检测
+- [x] 各类网址的安全过滤
 - [ ] CSDN/吾爱破解/知乎/……等等诸多内容网站的内容下载存储到telegraph，避免隐私窃取
 - [ ] 音视频平台内容下载存储到telegraph，避免隐私窃取
 

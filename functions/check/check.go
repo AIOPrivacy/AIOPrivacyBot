@@ -29,7 +29,7 @@ type ClearURLsData struct {
 }
 
 var (
-	dataURL       = "https://rules2.clearurls.xyz/data.minify.json"
+	dataURL       = "https://raw.githubusercontent.com/iuu6/AIOPrivacyBot/main/functions/check/data.minify.json"
 	providers     map[string]Provider
 	providersLock sync.RWMutex
 )
