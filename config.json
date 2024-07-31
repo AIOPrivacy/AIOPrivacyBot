@@ -1,4 +1,5 @@
 {
     "token": "",
-    "super_admins": [""]
+    "super_admins": ["",""],
+	"safe_browsing_api_key": ""
 }

@@ -72,8 +72,8 @@ func fetchData() error {
 	}
 
 	providersLock.Lock()
+	defer providersLock.Unlock()
 	providers = newProviders.Providers
-	providersLock.Unlock()
 
 	log.Println("Successfully updated providers")
 	return nil
@@ -124,27 +124,19 @@ func cleanQueryString(url string) string {
 
 	params := strings.Split(query, "&")
 	paramMap := make(map[string]string)
+
 	for _, param := range params {
 		keyValue := strings.SplitN(param, "=", 2)
 		if len(keyValue) == 2 {
 			key := keyValue[0]
 			value := keyValue[1]
-			if _, exists := paramMap[key]; !exists {
-				paramMap[key] = value
-			}
+			paramMap[key] = value
 		}
 	}
 
 	var cleanedQuery []string
-	for _, param := range params {
-		keyValue := strings.SplitN(param, "=", 2)
-		if len(keyValue) == 2 {
-			key := keyValue[0]
-			value := keyValue[1]
-			if val, exists := paramMap[key]; exists && val == value {
-				cleanedQuery = append(cleanedQuery, fmt.Sprintf("%s=%s", key, value))
-			}
-		}
+	for key, value := range paramMap {
+		cleanedQuery = append(cleanedQuery, fmt.Sprintf("%s=%s", key, value))
 	}
 
 	if len(cleanedQuery) == 0 {
