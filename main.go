@@ -97,5 +97,5 @@ func isReplyToBot(message *tgbotapi.Message) bool {
 func shouldTriggerResponse() bool {
 	rand.Seed(time.Now().UnixNano())
 	randomValue := rand.Intn(100) + 1
-	return randomValue > 30
+	return randomValue > 0
 }

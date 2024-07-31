@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 	"sync"
@@ -79,71 +80,51 @@ func fetchData() error {
 	return nil
 }
 
-func cleanURL(url string) string {
+func cleanURL(input string) (string, error) {
 	providersLock.RLock()
 	defer providersLock.RUnlock()
 
 	for _, provider := range providers {
-		if matched, _ := regexp.MatchString(provider.URLPattern, url); matched {
+		if matched, _ := regexp.MatchString(provider.URLPattern, input); matched {
 			log.Printf("Matching provider found: %v", provider.URLPattern)
-			for _, rule := range provider.Rules {
-				re := regexp.MustCompile(fmt.Sprintf(`[?&]%s=[^&]*`, rule))
-				url = re.ReplaceAllString(url, "")
-				log.Printf("Applied rule: %s", rule)
-			}
-			for _, rawRule := range provider.RawRules {
-				re := regexp.MustCompile(rawRule)
-				url = re.ReplaceAllString(url, "")
-				log.Printf("Applied raw rule: %s", rawRule)
-			}
-			for _, refParam := range provider.ReferralMarketing {
-				re := regexp.MustCompile(fmt.Sprintf(`[?&]%s=[^&]*`, refParam))
-				url = re.ReplaceAllString(url, "")
-				log.Printf("Applied referral marketing rule: %s", refParam)
-			}
 			for _, exception := range provider.Exceptions {
-				re := regexp.MustCompile(exception)
-				if re.MatchString(url) {
-					log.Printf("Exception matched, returning URL: %s", url)
-					return url
+				re := regexp.MustCompile(fmt.Sprintf(`(?i)%s`, exception))
+				if re.MatchString(input) {
+					log.Printf("Exception matched, returning URL: %s", input)
+					return input, nil
 				}
 			}
-			url = cleanQueryString(url)
+			for _, rawRule := range provider.RawRules {
+				re := regexp.MustCompile(fmt.Sprintf(`(?i)%s`, rawRule))
+				input = re.ReplaceAllString(input, "")
+				log.Printf("Applied raw rule: %s", rawRule)
+			}
+			parsed, err := url.Parse(input)
+			if err != nil {
+				return input, err
+			}
+			values := parsed.Query()
+			for key := range parsed.Query() {
+				for _, rule := range provider.Rules {
+					re := regexp.MustCompile(fmt.Sprintf(`(?i)%s`, rule))
+					if re.MatchString(key) {
+						values.Del(key)
+					}
+					log.Printf("Applied rule: %s", rule)
+				}
+				for _, refParam := range provider.ReferralMarketing {
+					re := regexp.MustCompile(fmt.Sprintf(`(?i)%s`, refParam))
+					if re.MatchString(key) {
+						values.Del(key)
+					}
+					log.Printf("Applied referral marketing rule: %s", refParam)
+				}
+			}
+			parsed.RawQuery = values.Encode()
+			input = parsed.String()
 		}
 	}
-	return url
-}
-
-func cleanQueryString(url string) string {
-	parts := strings.SplitN(url, "?", 2)
-	if len(parts) < 2 {
-		return url
-	}
-	baseURL := parts[0]
-	query := parts[1]
-
-	params := strings.Split(query, "&")
-	paramMap := make(map[string]string)
-
-	for _, param := range params {
-		keyValue := strings.SplitN(param, "=", 2)
-		if len(keyValue) == 2 {
-			key := keyValue[0]
-			value := keyValue[1]
-			paramMap[key] = value
-		}
-	}
-
-	var cleanedQuery []string
-	for key, value := range paramMap {
-		cleanedQuery = append(cleanedQuery, fmt.Sprintf("%s=%s", key, value))
-	}
-
-	if len(cleanedQuery) == 0 {
-		return baseURL
-	}
-
-	return baseURL + "?" + strings.Join(cleanedQuery, "&")
+	return input, nil
 }
 
 func HandleInlineQuery(inlineQuery *tgbotapi.InlineQuery, bot *tgbotapi.BotAPI) {
@@ -160,7 +141,11 @@ func HandleInlineQuery(inlineQuery *tgbotapi.InlineQuery, bot *tgbotapi.BotAPI) 
 		return
 	}
 
-	cleanedURL := cleanURL(url)
+	cleanedURL, err := cleanURL(url)
+
+	if err != nil {
+		return
+	}
 
 	results := []interface{}{
 		tgbotapi.NewInlineQueryResultArticleHTML(
