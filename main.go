@@ -11,6 +11,7 @@ import (
 
 	"AIOPrivacyBot/functions/ai_chat"
 	"AIOPrivacyBot/functions/ask"
+	"AIOPrivacyBot/functions/check"
 	"AIOPrivacyBot/functions/getid"
 	"AIOPrivacyBot/functions/help"
 	"AIOPrivacyBot/functions/play"
@@ -59,6 +60,8 @@ func main() {
 		if update.Message != nil {
 			log.Printf("Received message from %s: %s", update.Message.From.UserName, update.Message.Text)
 			processMessage(update.Message, bot)
+		} else if update.InlineQuery != nil {
+			check.HandleInlineQuery(update.InlineQuery, bot)
 		}
 	}
 }
