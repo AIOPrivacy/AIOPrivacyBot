@@ -136,9 +136,21 @@ func cleanQueryString(url string) string {
 	}
 
 	var cleanedQuery []string
-	for key, value := range paramMap {
-		cleanedQuery = append(cleanedQuery, fmt.Sprintf("%s=%s", key, value))
+	for _, param := range params {
+		keyValue := strings.SplitN(param, "=", 2)
+		if len(keyValue) == 2 {
+			key := keyValue[0]
+			value := keyValue[1]
+			if val, exists := paramMap[key]; exists && val == value {
+				cleanedQuery = append(cleanedQuery, fmt.Sprintf("%s=%s", key, value))
+			}
+		}
 	}
+
+	if len(cleanedQuery) == 0 {
+		return baseURL
+	}
+
 	return baseURL + "?" + strings.Join(cleanedQuery, "&")
 }
 
