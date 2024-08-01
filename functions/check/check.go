@@ -86,7 +86,7 @@ func cleanURL(input string) (string, error) {
 
 	for _, provider := range providers {
 		if matched, _ := regexp.MatchString(provider.URLPattern, input); matched {
-			log.Printf("Matching provider found: %v", provider.URLPattern)
+			//log.Printf("Matching provider found: %v", provider.URLPattern)
 			for _, exception := range provider.Exceptions {
 				re := regexp.MustCompile(fmt.Sprintf(`(?i)%s`, exception))
 				if re.MatchString(input) {
@@ -97,7 +97,7 @@ func cleanURL(input string) (string, error) {
 			for _, rawRule := range provider.RawRules {
 				re := regexp.MustCompile(fmt.Sprintf(`(?i)%s`, rawRule))
 				input = re.ReplaceAllString(input, "")
-				log.Printf("Applied raw rule: %s", rawRule)
+				//log.Printf("Applied raw rule: %s", rawRule)
 			}
 			parsed, err := url.Parse(input)
 			if err != nil {
@@ -110,14 +110,14 @@ func cleanURL(input string) (string, error) {
 					if re.MatchString(key) {
 						values.Del(key)
 					}
-					log.Printf("Applied rule: %s", rule)
+					//log.Printf("Applied rule: %s", rule)
 				}
 				for _, refParam := range provider.ReferralMarketing {
 					re := regexp.MustCompile(fmt.Sprintf(`(?i)%s`, refParam))
 					if re.MatchString(key) {
 						values.Del(key)
 					}
-					log.Printf("Applied referral marketing rule: %s", refParam)
+					//log.Printf("Applied referral marketing rule: %s", refParam)
 				}
 			}
 			parsed.RawQuery = values.Encode()
