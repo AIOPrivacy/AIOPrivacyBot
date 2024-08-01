@@ -21,8 +21,9 @@ import (
 )
 
 type Config struct {
-	Token       string   `json:"token"`
-	SuperAdmins []string `json:"super_admins"`
+	Token              string   `json:"token"`
+	SuperAdmins        []string `json:"super_admins"`
+	SafeBrowsingAPIKey string   `json:"safe_browsing_api_key"`
 }
 
 var (
@@ -50,6 +51,9 @@ func main() {
 
 	botUsername = bot.Self.UserName
 	log.Printf("Authorized on account %s", botUsername)
+
+	// Initialize check package with SafeBrowsingAPIKey
+	check.Init(config.SafeBrowsingAPIKey)
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
@@ -97,5 +101,5 @@ func isReplyToBot(message *tgbotapi.Message) bool {
 func shouldTriggerResponse() bool {
 	rand.Seed(time.Now().UnixNano())
 	randomValue := rand.Intn(100) + 1
-	return randomValue > 30
+	return randomValue > 0
 }

@@ -1,6 +1,7 @@
 package check
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -33,9 +34,11 @@ var (
 	dataURL       = "https://raw.githubusercontent.com/iuu6/AIOPrivacyBot/main/functions/check/data.minify.json"
 	providers     map[string]Provider
 	providersLock sync.RWMutex
+	apiKey        string
 )
 
-func init() {
+func Init(apiKeyFromConfig string) {
+	apiKey = apiKeyFromConfig
 	go refreshData()
 }
 
@@ -127,6 +130,90 @@ func cleanURL(input string) (string, error) {
 	return input, nil
 }
 
+type ThreatEntry struct {
+	URL string `json:"url"`
+}
+
+type ThreatInfo struct {
+	ThreatTypes      []string      `json:"threatTypes"`
+	PlatformTypes    []string      `json:"platformTypes"`
+	ThreatEntryTypes []string      `json:"threatEntryTypes"`
+	ThreatEntries    []ThreatEntry `json:"threatEntries"`
+}
+
+type SafeBrowsingRequest struct {
+	Client     ClientInfo `json:"client"`
+	ThreatInfo ThreatInfo `json:"threatInfo"`
+}
+
+type ClientInfo struct {
+	ClientID      string `json:"clientId"`
+	ClientVersion string `json:"clientVersion"`
+}
+
+type SafeBrowsingResponse struct {
+	Matches []struct {
+		ThreatType      string `json:"threatType"`
+		PlatformType    string `json:"platformType"`
+		ThreatEntryType string `json:"threatEntryType"`
+		Threat          struct {
+			URL string `json:"url"`
+		} `json:"threat"`
+		CacheDuration string `json:"cacheDuration"`
+	} `json:"matches"`
+}
+
+func checkURLSafety(input string) (*SafeBrowsingResponse, error) {
+	safeBrowsingURL := fmt.Sprintf("https://safebrowsing.googleapis.com/v4/threatMatches:find?key=%s", apiKey)
+
+	clientInfo := ClientInfo{
+		ClientID:      "yourcompanyname",
+		ClientVersion: "1.5.2",
+	}
+
+	threatInfo := ThreatInfo{
+		ThreatTypes:      []string{"MALWARE", "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE", "POTENTIALLY_HARMFUL_APPLICATION"},
+		PlatformTypes:    []string{"WINDOWS", "LINUX", "ANDROID", "IOS", "OSX", "CHROME"},
+		ThreatEntryTypes: []string{"URL", "EXECUTABLE"},
+		ThreatEntries: []ThreatEntry{
+			{URL: input},
+		},
+	}
+
+	requestBody := SafeBrowsingRequest{
+		Client:     clientInfo,
+		ThreatInfo: threatInfo,
+	}
+
+	jsonData, err := json.Marshal(requestBody)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.Post(safeBrowsingURL, "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d, response: %s", resp.StatusCode, body)
+	}
+
+	var safeBrowsingResponse SafeBrowsingResponse
+	err = json.Unmarshal(body, &safeBrowsingResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return &safeBrowsingResponse, nil
+}
+
 func HandleInlineQuery(inlineQuery *tgbotapi.InlineQuery, bot *tgbotapi.BotAPI) {
 	log.Printf("Received inline query from %s: %s", inlineQuery.From.UserName, inlineQuery.Query)
 
@@ -142,16 +229,32 @@ func HandleInlineQuery(inlineQuery *tgbotapi.InlineQuery, bot *tgbotapi.BotAPI) 
 	}
 
 	cleanedURL, err := cleanURL(url)
-
 	if err != nil {
 		return
+	}
+
+	// Check URL safety using Google Safe Browsing API
+	safetyResponse, err := checkURLSafety(cleanedURL)
+	if err != nil {
+		log.Printf("Error checking URL safety: %v", err)
+		return
+	}
+
+	safetyMessage := "The URL is safe."
+	if len(safetyResponse.Matches) > 0 {
+		threatDetails := ""
+		for _, match := range safetyResponse.Matches {
+			threatDetails += fmt.Sprintf("Threat Type: %s\nPlatform Type: %s\nThreat Entry Type: %s\nThreat URL: %s\nCache Duration: %s\n---\n",
+				match.ThreatType, match.PlatformType, match.ThreatEntryType, match.Threat.URL, match.CacheDuration)
+		}
+		safetyMessage = fmt.Sprintf("The URL is not safe. Threat details:\n%s", threatDetails)
 	}
 
 	results := []interface{}{
 		tgbotapi.NewInlineQueryResultArticleHTML(
 			inlineQuery.ID,
-			"Cleaned URL",
-			fmt.Sprintf("网址（去跟踪）：<a href=\"%s\">%s</a>", cleanedURL, cleanedURL),
+			"URL Clean & Safe Check",
+			fmt.Sprintf("网址（去跟踪）：<a href=\"%s\">%s</a>\n\n\n%s", cleanedURL, cleanedURL, safetyMessage),
 		),
 	}
 
