@@ -144,6 +144,12 @@
 @AIOPrivacyBot -view https://www.52pojie.cn/thread-143136-1-1.html
 ```
 
+### /admins 召唤所有管理员
+
+`/admins@AIOPrivacyBot`即可召唤本群所有管理员（危险功能，需要确认后才会@管理员）
+
+
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 功能路线
@@ -155,6 +161,7 @@
 - [x] /help 帮助中心
 - [x] /getid 用户查看ID信息功能
 - [x] /status 查看系统信息
+- [x] /admins 召唤所有管理员
 - [x] 各类网址的安全检测
 - [x] 各类网址的安全过滤
 - [x] CSDN/吾爱破解/知乎/……等等诸多内容网站的内容下载存储到telegraph，避免隐私窃取

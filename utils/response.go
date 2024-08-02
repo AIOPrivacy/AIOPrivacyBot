@@ -64,3 +64,24 @@ func SendMarkdownMessage(chatID int64, messageID int, text string, bot *tgbotapi
 	log.Printf("Markdown message sent successfully to chat ID %d", chatID)
 	return nil
 }
+
+// SendMarkdownMessageWithInlineKeyboard 发送带有内联键盘的 Markdown 格式的消息
+func SendMarkdownMessageWithInlineKeyboard(chatID int64, messageID int, text string, buttons []tgbotapi.InlineKeyboardButton, bot *tgbotapi.BotAPI) error {
+	log.Printf("Sending Markdown message with inline keyboard to chat ID %d: %s", chatID, text)
+	msg := tgbotapi.NewMessage(chatID, text)
+	msg.ParseMode = "Markdown"
+	msg.ReplyToMessageID = messageID // 回复到原始消息
+
+	keyboard := tgbotapi.NewInlineKeyboardMarkup(
+		tgbotapi.NewInlineKeyboardRow(buttons...),
+	)
+	msg.ReplyMarkup = keyboard
+
+	_, err := bot.Send(msg)
+	if err != nil {
+		log.Printf("Error sending Markdown message with inline keyboard: %v", err)
+		return err
+	}
+	log.Printf("Markdown message with inline keyboard sent successfully to chat ID %d", chatID)
+	return nil
+}

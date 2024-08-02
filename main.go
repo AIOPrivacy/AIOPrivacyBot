@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"AIOPrivacyBot/functions/admins"
 	"AIOPrivacyBot/functions/ai_chat"
 	"AIOPrivacyBot/functions/ask"
 	"AIOPrivacyBot/functions/check"
@@ -71,6 +72,8 @@ func main() {
 			processMessage(update.Message, bot)
 		} else if update.InlineQuery != nil {
 			processInlineQuery(update.InlineQuery, bot)
+		} else if update.CallbackQuery != nil {
+			admins.HandleCallbackQuery(update.CallbackQuery, bot)
 		}
 	}
 }
@@ -90,6 +93,8 @@ func processMessage(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 			getid.HandleGetIDCommand(message, bot, config.SuperAdmins)
 		} else if command == "status" && (message.Chat.IsPrivate() || strings.Contains(message.Text, fmt.Sprintf("@%s", botUsername))) {
 			status.HandleStatusCommand(message, bot)
+		} else if command == "admins" && (message.Chat.IsGroup() || message.Chat.IsSuperGroup()) {
+			admins.HandleAdminsCommand(message, bot)
 		}
 	} else if (message.Chat.IsGroup() || message.Chat.IsSuperGroup()) && isReplyToBot(message) && shouldTriggerResponse() {
 		ai_chat.HandleAIChat(message, bot)
