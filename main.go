@@ -16,14 +16,16 @@ import (
 	"AIOPrivacyBot/functions/help"
 	"AIOPrivacyBot/functions/play"
 	"AIOPrivacyBot/functions/status"
+	"AIOPrivacyBot/functions/view"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 type Config struct {
-	Token              string   `json:"token"`
-	SuperAdmins        []string `json:"super_admins"`
-	SafeBrowsingAPIKey string   `json:"safe_browsing_api_key"`
+	Token                string   `json:"token"`
+	SuperAdmins          []string `json:"super_admins"`
+	SafeBrowsingAPIKey   string   `json:"safe_browsing_api_key"`
+	TelegraphAccessToken string   `json:"telegraph_access_token"`
 }
 
 var (
@@ -55,6 +57,9 @@ func main() {
 	// Initialize check package with SafeBrowsingAPIKey
 	check.Init(config.SafeBrowsingAPIKey)
 
+	// Initialize view package with Telegraph access token
+	view.Init(config.TelegraphAccessToken)
+
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
@@ -65,7 +70,7 @@ func main() {
 			log.Printf("Received message from %s: %s", update.Message.From.UserName, update.Message.Text)
 			processMessage(update.Message, bot)
 		} else if update.InlineQuery != nil {
-			check.HandleInlineQuery(update.InlineQuery, bot)
+			processInlineQuery(update.InlineQuery, bot)
 		}
 	}
 }
@@ -88,6 +93,14 @@ func processMessage(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 		}
 	} else if (message.Chat.IsGroup() || message.Chat.IsSuperGroup()) && isReplyToBot(message) && shouldTriggerResponse() {
 		ai_chat.HandleAIChat(message, bot)
+	}
+}
+
+func processInlineQuery(inlineQuery *tgbotapi.InlineQuery, bot *tgbotapi.BotAPI) {
+	if strings.HasPrefix(inlineQuery.Query, "-view") {
+		view.HandleViewCommand(inlineQuery, bot)
+	} else if strings.HasPrefix(inlineQuery.Query, "-check") {
+		check.HandleInlineQuery(inlineQuery, bot)
 	}
 }
 

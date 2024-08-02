@@ -1,5 +1,6 @@
 {
     "token": "",
     "super_admins": ["",""],
-	"safe_browsing_api_key": ""
+	"safe_browsing_api_key": "",
+    "telegraph_access_token": ""
 }
