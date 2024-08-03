@@ -165,6 +165,10 @@ o 表示 oct
 x 表示 hex
 ```
 
+### /curconv 货币转换，汇率查询
+
+`/curconv@AIOPrivacyBot`可以进行货币转换，汇率查询
+
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -181,10 +185,10 @@ x 表示 hex
 - [x] /admins 召唤所有管理员
 - [x] /num 数字进制转换
 - [x] /string 字符串编码
+- [x] /curconv 货币转换，汇率查询
 - [x] 各类网址的安全检测
 - [x] 各类网址的安全过滤
 - [x] CSDN/吾爱破解/知乎/……等等诸多内容网站的内容下载存储到telegraph，避免隐私窃取
-- [ ] 音视频平台内容下载存储到telegraph，避免隐私窃取
 - [ ] 功能开关支持
 - [ ] 多语言支持
 

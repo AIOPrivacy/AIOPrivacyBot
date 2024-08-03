@@ -13,6 +13,7 @@ import (
 	"AIOPrivacyBot/functions/ai_chat"
 	"AIOPrivacyBot/functions/ask"
 	"AIOPrivacyBot/functions/check"
+	"AIOPrivacyBot/functions/curconv"
 	"AIOPrivacyBot/functions/getid"
 	"AIOPrivacyBot/functions/help"
 	"AIOPrivacyBot/functions/num"
@@ -104,6 +105,8 @@ func processMessage(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 			num.HandleNumCommand(message, bot)
 		} else if command == "string" && (message.Chat.IsPrivate() || strings.Contains(message.Text, fmt.Sprintf("@%s", botUsername))) {
 			stringcalc.HandleStringCommand(message, bot)
+		} else if command == "curconv" && (message.Chat.IsPrivate() || strings.Contains(message.Text, fmt.Sprintf("@%s", botUsername))) {
+			curconv.HandleCurconvCommand(message, bot)
 		}
 	} else if (message.Chat.IsGroup() || message.Chat.IsSuperGroup()) && isReplyToBot(message) && shouldTriggerResponse() {
 		ai_chat.HandleAIChat(message, bot)
@@ -128,7 +131,7 @@ func isReplyToBot(message *tgbotapi.Message) bool {
 func shouldTriggerResponse() bool {
 	rand.Seed(time.Now().UnixNano())
 	randomValue := rand.Intn(100) + 1
-	return randomValue > 0
+	return randomValue > 30
 }
 
 func setBotCommands(bot *tgbotapi.BotAPI) {
@@ -141,6 +144,7 @@ func setBotCommands(bot *tgbotapi.BotAPI) {
 		{Command: "admins", Description: "召唤管理员"},
 		{Command: "num", Description: "数字进制转换"},
 		{Command: "string", Description: "字符串编码"},
+		{Command: "curconv", Description: "货币汇率计算"},
 	}
 
 	config := tgbotapi.NewSetMyCommands(commands...)

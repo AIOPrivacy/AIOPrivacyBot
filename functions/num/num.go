@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"math/big"
-	"strings"
 
 	"AIOPrivacyBot/utils"
 
@@ -15,18 +14,9 @@ import (
 func HandleNumCommand(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 	input := message.CommandArguments()
 	var decimalValue = new(big.Int)
-	var success bool
 
-	// 判断输入的进制类型并转换为十进制
-	if strings.HasPrefix(input, "0b") {
-		decimalValue, success = decimalValue.SetString(input[2:], 2)
-	} else if strings.HasPrefix(input, "0o") {
-		decimalValue, success = decimalValue.SetString(input[2:], 8)
-	} else if strings.HasPrefix(input, "0x") {
-		decimalValue, success = decimalValue.SetString(input[2:], 16)
-	} else {
-		decimalValue, success = decimalValue.SetString(input, 10)
-	}
+	// 自动识别进制并转换为十进制
+	decimalValue, success := decimalValue.SetString(input, 0)
 
 	if !success {
 		log.Printf("Error parsing number: %s", input)
