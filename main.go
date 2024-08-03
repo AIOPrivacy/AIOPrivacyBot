@@ -15,8 +15,10 @@ import (
 	"AIOPrivacyBot/functions/check"
 	"AIOPrivacyBot/functions/getid"
 	"AIOPrivacyBot/functions/help"
+	"AIOPrivacyBot/functions/num"
 	"AIOPrivacyBot/functions/play"
 	"AIOPrivacyBot/functions/status"
+	"AIOPrivacyBot/functions/stringcalc"
 	"AIOPrivacyBot/functions/view"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -61,6 +63,9 @@ func main() {
 	// Initialize view package with Telegraph access token
 	view.Init(config.TelegraphAccessToken)
 
+	// 设置命令
+	setBotCommands(bot)
+
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 
@@ -95,6 +100,10 @@ func processMessage(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 			status.HandleStatusCommand(message, bot)
 		} else if command == "admins" && (message.Chat.IsGroup() || message.Chat.IsSuperGroup()) {
 			admins.HandleAdminsCommand(message, bot)
+		} else if command == "num" && (message.Chat.IsPrivate() || strings.Contains(message.Text, fmt.Sprintf("@%s", botUsername))) {
+			num.HandleNumCommand(message, bot)
+		} else if command == "string" && (message.Chat.IsPrivate() || strings.Contains(message.Text, fmt.Sprintf("@%s", botUsername))) {
+			stringcalc.HandleStringCommand(message, bot)
 		}
 	} else if (message.Chat.IsGroup() || message.Chat.IsSuperGroup()) && isReplyToBot(message) && shouldTriggerResponse() {
 		ai_chat.HandleAIChat(message, bot)
@@ -120,4 +129,26 @@ func shouldTriggerResponse() bool {
 	rand.Seed(time.Now().UnixNano())
 	randomValue := rand.Intn(100) + 1
 	return randomValue > 0
+}
+
+func setBotCommands(bot *tgbotapi.BotAPI) {
+	commands := []tgbotapi.BotCommand{
+		{Command: "help", Description: "获取帮助信息"},
+		{Command: "play", Description: "互动游玩"},
+		{Command: "ask", Description: "提问AI"},
+		{Command: "getid", Description: "获取ID"},
+		{Command: "status", Description: "获取机器人状态"},
+		{Command: "admins", Description: "召唤管理员"},
+		{Command: "num", Description: "数字进制转换"},
+		{Command: "string", Description: "字符串编码"},
+	}
+
+	config := tgbotapi.NewSetMyCommands(commands...)
+
+	_, err := bot.Request(config)
+	if err != nil {
+		log.Fatalf("Error setting bot commands: %v", err)
+	}
+
+	log.Println("Bot commands set successfully")
 }

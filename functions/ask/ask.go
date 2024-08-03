@@ -68,7 +68,7 @@ func HandleAskCommand(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 			log.Printf("Error sending AI response: %v", err)
 		}
 	} else {
-		utils.SendMarkdownMessage(message.Chat.ID, message.MessageID, "请发送 /ask@botusername 你要说的内容", bot)
+		utils.SendMarkdownMessage(message.Chat.ID, message.MessageID, "请发送 /ask@AIOPrivacyBot 你要说的内容", bot)
 	}
 }
 
