@@ -148,6 +148,23 @@
 
 `/admins@AIOPrivacyBot`即可召唤本群所有管理员（危险功能，需要确认后才会@管理员）
 
+### /string 字符串编码
+
+`/string@AIOPrivacyBot -url xxx`即可进行字符串转换
+包括多个参数，可以使用`-all`查看
+
+### /num 数字进制转换
+
+`/string@AIOPrivacyBot`可以进行进制转换
+
+可以输入整数，也可以输入0xfff（十六进制）
+
+```
+b 表示 bin
+o 表示 oct
+x 表示 hex
+```
+
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -162,6 +179,8 @@
 - [x] /getid 用户查看ID信息功能
 - [x] /status 查看系统信息
 - [x] /admins 召唤所有管理员
+- [x] /num 数字进制转换
+- [x] /string 字符串编码
 - [x] 各类网址的安全检测
 - [x] 各类网址的安全过滤
 - [x] CSDN/吾爱破解/知乎/……等等诸多内容网站的内容下载存储到telegraph，避免隐私窃取
