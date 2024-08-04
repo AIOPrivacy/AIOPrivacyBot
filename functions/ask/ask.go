@@ -65,7 +65,13 @@ func HandleAskCommand(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 
 		err = utils.SendMarkdownMessage(message.Chat.ID, message.MessageID, combinedMessage, bot)
 		if err != nil {
-			log.Printf("Error sending AI response: %v", err)
+			log.Printf("Error sending Markdown message: %v", err)
+			// Use HTML format as a fallback
+			htmlMessage := convertMarkdownToHTML(combinedMessage)
+			err = utils.SendMessage(message.Chat.ID, htmlMessage, message.MessageID, bot)
+			if err != nil {
+				log.Printf("Error sending AI response: %v", err)
+			}
 		}
 	} else {
 		utils.SendMarkdownMessage(message.Chat.ID, message.MessageID, "请发送 /ask@AIOPrivacyBot 你要说的内容", bot)
@@ -124,4 +130,13 @@ func parseAIResponse(responseBody io.Reader) (string, error) {
 		combinedMessage += aiResponseChunk.Choices[0].Delta.Content
 	}
 	return combinedMessage, nil
+}
+
+// convertMarkdownToHTML converts Markdown text to HTML text.
+func convertMarkdownToHTML(markdownText string) string {
+	// This is a basic conversion. You may need to handle more cases or use a library for a comprehensive conversion.
+	htmlText := strings.ReplaceAll(markdownText, "*", "<b>")
+	htmlText = strings.ReplaceAll(htmlText, "_", "<i>")
+	htmlText = strings.ReplaceAll(htmlText, "`", "<code>")
+	return htmlText
 }
