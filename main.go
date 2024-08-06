@@ -73,14 +73,18 @@ func main() {
 	updates := bot.GetUpdatesChan(u)
 
 	for update := range updates {
-		if update.Message != nil {
-			log.Printf("Received message from %s: %s", update.Message.From.UserName, update.Message.Text)
-			processMessage(update.Message, bot)
-		} else if update.InlineQuery != nil {
-			processInlineQuery(update.InlineQuery, bot)
-		} else if update.CallbackQuery != nil {
-			admins.HandleCallbackQuery(update.CallbackQuery, bot)
-		}
+		go handleUpdate(update, bot)
+	}
+}
+
+func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
+	if update.Message != nil {
+		log.Printf("Received message from %s: %s", update.Message.From.UserName, update.Message.Text)
+		processMessage(update.Message, bot)
+	} else if update.InlineQuery != nil {
+		processInlineQuery(update.InlineQuery, bot)
+	} else if update.CallbackQuery != nil {
+		admins.HandleCallbackQuery(update.CallbackQuery, bot)
 	}
 }
 
