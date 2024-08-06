@@ -1,94 +1,31 @@
-name: Build and Release
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go lint
 
 on:
-  pull_request:
-    branches: [main]
   push:
-    branches: [main]
-
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
 jobs:
-  build:
-    name: Build and Release
+
+  golangci:
+    name: lint
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@master
+        with:
+          go-version: '1.22'
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: 1.22.4
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
-    - name: Install dependencies
-      run: go mod tidy
-
-    - name: Build binaries
-      run: |
-        mkdir -p dist
-        GOOS=linux   GOARCH=amd64 go build -o dist/AIOPrivacyBot-linux-amd64
-        GOOS=linux   GOARCH=arm64 go build -o dist/AIOPrivacyBot-linux-arm64
-        GOOS=windows GOARCH=amd64 go build -o dist/AIOPrivacyBot-windows-amd64.exe
-        GOOS=darwin  GOARCH=amd64 go build -o dist/AIOPrivacyBot-darwin-amd64
-        GOOS=darwin  GOARCH=arm64 go build -o dist/AIOPrivacyBot-darwin-arm64
-
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-
-    - name: Upload Release Assets
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/AIOPrivacyBot-linux-amd64
-        asset_name: AIOPrivacyBot-linux-amd64
-        asset_content_type: application/octet-stream
-
-    - name: Upload Release Assets (linux-arm64)
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/AIOPrivacyBot-linux-arm64
-        asset_name: AIOPrivacyBot-linux-arm64
-        asset_content_type: application/octet-stream
-
-    - name: Upload Release Assets (windows-amd64)
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/AIOPrivacyBot-windows-amd64.exe
-        asset_name: AIOPrivacyBot-windows-amd64.exe
-        asset_content_type: application/octet-stream
-
-    - name: Upload Release Assets (darwin-amd64)
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/AIOPrivacyBot-darwin-amd64
-        asset_name: AIOPrivacyBot-darwin-amd64
-        asset_content_type: application/octet-stream
-
-    - name: Upload Release Assets (darwin-arm64)
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/AIOPrivacyBot-darwin-arm64
-        asset_name: AIOPrivacyBot-darwin-arm64
-        asset_content_type: application/octet-stream
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@master
+        with:
+          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
+          version: latest
