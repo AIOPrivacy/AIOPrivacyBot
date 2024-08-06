@@ -1,4 +1,4 @@
-name: Go Build and Release
+name: Build and Release
 
 on:
   pull_request:
@@ -8,138 +8,87 @@ on:
 
 jobs:
   build:
-    name: Build and Test
+    name: Build and Release
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        go-version: [1.22.4]
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        arch: [amd64, arm64]
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: ${{ matrix.go-version }}
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: 1.22.4
 
-      - name: Install dependencies
-        run: go mod tidy
+    - name: Install dependencies
+      run: go mod tidy
 
-      - name: Build
-        run: |
-          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
-            GOOS=linux GOARCH=${{ matrix.arch }} go build -o AIOPrivacyBot-linux-${{ matrix.arch }}
-          elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            GOOS=windows GOARCH=${{ matrix.arch }} go build -o AIOPrivacyBot-windows-${{ matrix.arch }}.exe
-          elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-            GOOS=darwin GOARCH=${{ matrix.arch }} go build -o AIOPrivacyBot-darwin-${{ matrix.arch }}
-          fi
+    - name: Build binaries
+      run: |
+        mkdir -p dist
+        GOOS=linux   GOARCH=amd64 go build -o dist/AIOPrivacyBot-linux-amd64
+        GOOS=linux   GOARCH=arm64 go build -o dist/AIOPrivacyBot-linux-arm64
+        GOOS=windows GOARCH=amd64 go build -o dist/AIOPrivacyBot-windows-amd64.exe
+        GOOS=darwin  GOARCH=amd64 go build -o dist/AIOPrivacyBot-darwin-amd64
+        GOOS=darwin  GOARCH=arm64 go build -o dist/AIOPrivacyBot-darwin-arm64
 
-      - name: Run tests
-        run: go test ./...
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
 
-  release:
-    name: Create Release
-    runs-on: ubuntu-latest
-    needs: build
+    - name: Upload Release Assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/AIOPrivacyBot-linux-amd64
+        asset_name: AIOPrivacyBot-linux-amd64
+        asset_content_type: application/octet-stream
 
-    if: github.ref == 'refs/heads/main'
+    - name: Upload Release Assets (linux-arm64)
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/AIOPrivacyBot-linux-arm64
+        asset_name: AIOPrivacyBot-linux-arm64
+        asset_content_type: application/octet-stream
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Upload Release Assets (windows-amd64)
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/AIOPrivacyBot-windows-amd64.exe
+        asset_name: AIOPrivacyBot-windows-amd64.exe
+        asset_content_type: application/octet-stream
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: 1.22.4
+    - name: Upload Release Assets (darwin-amd64)
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/AIOPrivacyBot-darwin-amd64
+        asset_name: AIOPrivacyBot-darwin-amd64
+        asset_content_type: application/octet-stream
 
-      - name: Install dependencies
-        run: go mod tidy
-
-      - name: Build for all platforms
-        run: |
-          GOOS=linux GOARCH=amd64 go build -o AIOPrivacyBot-linux-amd64
-          GOOS=linux GOARCH=arm64 go build -o AIOPrivacyBot-linux-arm64
-          GOOS=windows GOARCH=amd64 go build -o AIOPrivacyBot-windows-amd64.exe
-          GOOS=windows GOARCH=arm64 go build -o AIOPrivacyBot-windows-arm64.exe
-          GOOS=darwin GOARCH=amd64 go build -o AIOPrivacyBot-darwin-amd64
-          GOOS=darwin GOARCH=arm64 go build -o AIOPrivacyBot-darwin-arm64
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v1.0.${{ github.run_number }}
-          release_name: Release v1.0.${{ github.run_number }}
-          body: |
-            Changes in this release:
-            ${{ github.event.head_commit.message }}
-          draft: false
-          prerelease: false
-
-      - name: Upload Release Asset Linux AMD64
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./AIOPrivacyBot-linux-amd64
-          asset_name: AIOPrivacyBot-linux-amd64
-          asset_content_type: application/octet-stream
-
-      - name: Upload Release Asset Linux ARM64
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./AIOPrivacyBot-linux-arm64
-          asset_name: AIOPrivacyBot-linux-arm64
-          asset_content_type: application/octet-stream
-
-      - name: Upload Release Asset Windows AMD64
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./AIOPrivacyBot-windows-amd64.exe
-          asset_name: AIOPrivacyBot-windows-amd64.exe
-          asset_content_type: application/octet-stream
-
-      - name: Upload Release Asset Windows ARM64
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./AIOPrivacyBot-windows-arm64.exe
-          asset_name: AIOPrivacyBot-windows-arm64.exe
-          asset_content_type: application/octet-stream
-
-      - name: Upload Release Asset macOS AMD64
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./AIOPrivacyBot-darwin-amd64
-          asset_name: AIOPrivacyBot-darwin-amd64
-          asset_content_type: application/octet-stream
-
-      - name: Upload Release Asset macOS ARM64
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./AIOPrivacyBot-darwin-arm64
-          asset_name: AIOPrivacyBot-darwin-arm64
-          asset_content_type: application/octet-stream
+    - name: Upload Release Assets (darwin-arm64)
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: dist/AIOPrivacyBot-darwin-arm64
+        asset_name: AIOPrivacyBot-darwin-arm64
+        asset_content_type: application/octet-stream
