@@ -54,7 +54,6 @@ func HandleViewCommand(inlineQuery *tgbotapi.InlineQuery, bot *tgbotapi.BotAPI) 
 	}
 
 	if pageData.Title == "" || pageData.Node == "" {
-		// 返回不支持此链接的消息
 		results := []interface{}{
 			tgbotapi.NewInlineQueryResultArticleHTML(
 				inlineQuery.ID,
@@ -99,6 +98,11 @@ func HandleViewCommand(inlineQuery *tgbotapi.InlineQuery, bot *tgbotapi.BotAPI) 
 }
 
 func fetchPageData(targetURL string) (PageData, error) {
+	// 自动安装浏览器依赖
+	if err := playwright.Install(); err != nil {
+		return PageData{}, fmt.Errorf("could not install browsers: %w", err)
+	}
+
 	pw, err := playwright.Run()
 	if err != nil {
 		return PageData{}, fmt.Errorf("could not start playwright: %w", err)
