@@ -30,7 +30,14 @@ jobs:
         run: go mod tidy
 
       - name: Build
-        run: GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o AIOPrivacyBot-${{ matrix.os }}-${{ matrix.arch }}
+        run: |
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            GOOS=linux GOARCH=${{ matrix.arch }} go build -o AIOPrivacyBot-linux-${{ matrix.arch }}
+          elif [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            GOOS=windows GOARCH=${{ matrix.arch }} go build -o AIOPrivacyBot-windows-${{ matrix.arch }}.exe
+          elif [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+            GOOS=darwin GOARCH=${{ matrix.arch }} go build -o AIOPrivacyBot-darwin-${{ matrix.arch }}
+          fi
 
       - name: Run tests
         run: go test ./...
