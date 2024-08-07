@@ -1,122 +1,58 @@
-name: Go Build and Release
+name: Build and Release New Nightly version
 
-on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-  push:
-    branches:
-      - main
+on: [push, pull_request]
+
+env:
+  BINARY_PREFIX: "AIOPrivacyBot_"
+  BINARY_SUFFIX: ""
+  PR_PROMPT: "::warning:: Build artifact will not be uploaded due to the workflow is trigged by pull request."
+  LD_FLAGS: "-w -s"
 
 jobs:
-  check:
+  build:
+    name: Build binary CI
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # build and publish in parallel: linux/386, linux/amd64, windows/386, windows/amd64, darwin/amd64, darwin/arm64
+        goos: [linux, windows]
+        goarch: ["386", amd64, arm, arm64]
+        exclude:
+          - goos: windows
+            goarch: arm
+          - goos: windows
+            goarch: arm64
+          - goos: windows
+            goarch: 386
+      fail-fast: true
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Go 1.22.4
-        uses: actions/setup-go@v3
+      - uses: actions/checkout@master
+      - name: Setup Go environment
+        uses: actions/setup-go@master
         with:
-          go-version: 1.22.4
-
-      - name: Install dependencies
-        run: go mod tidy
-
-      - name: Run tests
-        run: go test ./...
-
-  release:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Go 1.22.4
-        uses: actions/setup-go@v3
+          go-version: '1.22'
+      - name: Cache downloaded module
+        uses: actions/cache@master
+        continue-on-error: true
         with:
-          go-version: 1.22.4
-
-      - name: Install dependencies
-        run: go mod tidy
-
-      - name: Cross-compile binaries
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ matrix.goos }}-${{ matrix.goarch }}-${{ hashFiles('**/go.sum') }}
+      - name: Build binary file
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          IS_PR: ${{ !!github.head_ref }}
         run: |
-          GOOS=linux GOARCH=amd64 go build -o dist/linux_amd64/AIOPrivacyBot
-          GOOS=linux GOARCH=arm64 go build -o dist/linux_arm64/AIOPrivacyBot
-          GOOS=darwin GOARCH=amd64 go build -o dist/darwin_amd64/AIOPrivacyBot
-          GOOS=darwin GOARCH=arm64 go build -o dist/darwin_arm64/AIOPrivacyBot
-          GOOS=windows GOARCH=amd64 go build -o dist/windows_amd64/AIOPrivacyBot.exe
-          GOOS=windows GOARCH=arm64 go build -o dist/windows_arm64/AIOPrivacyBot.exe
-
-      - name: Create release notes
-        id: create_release
-        uses: actions/create-release@v1
+          if [ $GOOS = "windows" ]; then export BINARY_SUFFIX="$BINARY_SUFFIX.exe"; fi
+          if $IS_PR ; then echo $PR_PROMPT; fi
+          export BINARY_NAME="$BINARY_PREFIX$GOOS_$GOARCH$BINARY_SUFFIX"
+          export CGO_ENABLED=0
+          go build -o "output/$BINARY_NAME" -trimpath -ldflags "$LD_FLAGS" .
+      - name: Upload artifact
+        uses: actions/upload-artifact@master
+        if: ${{ !github.head_ref }}
         with:
-          tag_name: v${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
-          body: |
-            Release of version ${{ github.run_number }}
-            Commit: ${{ github.sha }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload release assets
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/linux_amd64/AIOPrivacyBot
-          asset_name: myapp-linux-amd64
-          asset_content_type: application/octet-stream
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Upload release assets (Linux ARM64)
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/linux_arm64/AIOPrivacyBot
-          asset_name: myapp-linux-arm64
-          asset_content_type: application/octet-stream
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Upload release assets (Darwin AMD64)
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/darwin_amd64/AIOPrivacyBot
-          asset_name: myapp-darwin-amd64
-          asset_content_type: application/octet-stream
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload release assets (Darwin ARM64)
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/darwin_arm64/AIOPrivacyBot
-          asset_name: myapp-darwin-arm64
-          asset_content_type: application/octet-stream
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Upload release assets (Windows AMD64)
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/windows_amd64/AIOPrivacyBot.exe
-          asset_name: myapp-windows-amd64
-          asset_content_type: application/octet-stream
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload release assets (Windows ARM64)
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/windows_arm64/AIOPrivacyBot.exe
-          asset_name: myapp-windows-arm64
-          asset_content_type: application/octet-stream
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ matrix.goos }}_${{ matrix.goarch }}
+          path: output/
