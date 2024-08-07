@@ -1,4 +1,4 @@
-name: Build and Release New Nightly
+name: Build and Release New Nightly version
 
 on: [push, pull_request]
 
