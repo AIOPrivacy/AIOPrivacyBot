@@ -169,6 +169,12 @@ x 表示 hex
 
 `/curconv@AIOPrivacyBot`可以进行货币转换，汇率查询
 
+### /color 颜色转换&色卡推荐
+
+`/color@AIOPrivacyBot`颜色转换&色卡推荐
+
+支持RGB 16进制 颜色名称
+
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -197,6 +203,8 @@ x 表示 hex
 
 - [x] /curconv 货币转换，汇率查询
 
+- [x] /color 颜色转换&色卡推荐
+
 - [x] 各类网址的安全检测
 
 - [x] 各类网址的安全过滤
@@ -210,8 +218,6 @@ x 表示 hex
 - [ ] 消息发送安全性确认功能
 
 - [ ] 自检程序有无被修改功能
-
-- [ ] 颜色推荐功能（色卡）
 
   **以下功能只适用于机器人有群组管理员的情况**
 

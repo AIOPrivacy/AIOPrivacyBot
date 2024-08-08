@@ -159,6 +159,7 @@ func setBotCommands(bot *tgbotapi.BotAPI) {
 		{Command: "num", Description: "数字进制转换"},
 		{Command: "string", Description: "字符串编码"},
 		{Command: "curconv", Description: "货币汇率计算"},
+		{Command: "color", Description: "颜色转换&色卡推荐"},
 	}
 
 	config := tgbotapi.NewSetMyCommands(commands...)
