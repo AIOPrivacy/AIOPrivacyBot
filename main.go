@@ -13,6 +13,7 @@ import (
 	"AIOPrivacyBot/functions/ai_chat"
 	"AIOPrivacyBot/functions/ask"
 	"AIOPrivacyBot/functions/check"
+	"AIOPrivacyBot/functions/color"
 	"AIOPrivacyBot/functions/curconv"
 	"AIOPrivacyBot/functions/getid"
 	"AIOPrivacyBot/functions/help"
@@ -38,6 +39,13 @@ var (
 )
 
 func main() {
+
+	// 确保 /tmp 目录存在
+	err := os.MkdirAll("/tmp", os.ModePerm)
+	if err != nil {
+		log.Fatalf("Error creating /tmp directory: %v", err)
+	}
+
 	file, err := os.Open("config.json")
 	if err != nil {
 		log.Fatalf("Error opening config file: %v", err)
@@ -111,6 +119,8 @@ func processMessage(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 			stringcalc.HandleStringCommand(message, bot)
 		} else if command == "curconv" && (message.Chat.IsPrivate() || strings.Contains(message.Text, fmt.Sprintf("@%s", botUsername))) {
 			curconv.HandleCurconvCommand(message, bot)
+		} else if command == "color" && (message.Chat.IsPrivate() || strings.Contains(message.Text, fmt.Sprintf("@%s", botUsername))) {
+			color.HandleColorCommand(message, bot)
 		}
 	} else if (message.Chat.IsGroup() || message.Chat.IsSuperGroup()) && isReplyToBot(message) && shouldTriggerResponse() {
 		ai_chat.HandleAIChat(message, bot)

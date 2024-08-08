@@ -23,6 +23,7 @@ func SendPhotoWithCaption(chatID int64, messageID int, photoPath, caption string
 		Reader: photoFile,
 	})
 	photo.Caption = caption
+	photo.ParseMode = "HTML"           // 设置为 HTML
 	photo.ReplyToMessageID = messageID // 设置回复消息ID
 	_, err = bot.Send(photo)
 	if err != nil {
