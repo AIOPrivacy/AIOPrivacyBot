@@ -93,7 +93,10 @@ func sendColorResponse(chatID int64, messageID int, name string, r, g, b int, bo
 	hex := fmt.Sprintf("#%02x%02x%02x", r, g, b)
 	rgbPercent := fmt.Sprintf("(%.2f%%, %.2f%%, %.2f%%)", float64(r)/255*100, float64(g)/255*100, float64(b)/255*100)
 
-	text := fmt.Sprintf("名称 (Name): <code>%s</code>\nRGB: <code>(%d, %d, %d)</code>\n十六进制 (Hex): <code>%s</code>\nRGB 百分比 (RGB Percent): <code>%s</code>", name, r, g, b, hex, rgbPercent)
+	// 获取推荐颜色
+	recommendedColors := getRecommendedColors(r, g, b)
+
+	text := fmt.Sprintf("名称 (Name): <code>%s</code>\nRGB: <code>(%d, %d, %d)</code>\n十六进制 (Hex): <code>%s</code>\nRGB 百分比 (RGB Percent): <code>%s</code>\n\n推荐颜色:\n%s", name, r, g, b, hex, rgbPercent, recommendedColors)
 
 	imagePath := fmt.Sprintf("/tmp/color_%d_%d_%d.png", r, g, b)
 	err := createColorImage(r, g, b, imagePath)
@@ -107,7 +110,28 @@ func sendColorResponse(chatID int64, messageID int, name string, r, g, b int, bo
 	if err != nil {
 		log.Printf("Error sending photo: %v", err)
 		utils.SendMessage(chatID, "发送颜色图片时出错。", messageID, bot)
+		return
 	}
+
+	// 删除临时图片文件
+	err = os.Remove(imagePath)
+	if err != nil {
+		log.Printf("Error removing temp image file: %v", err)
+	}
+}
+
+func getRecommendedColors(r, g, b int) string {
+	var recommendations string
+	// 生成不同亮度的推荐颜色
+	for i := 1; i <= 3; i++ {
+		factor := float64(i) / 4.0
+		newR := int(float64(r) * factor)
+		newG := int(float64(g) * factor)
+		newB := int(float64(b) * factor)
+		hex := fmt.Sprintf("#%02x%02x%02x", newR, newG, newB)
+		recommendations += fmt.Sprintf("<code>%s</code>\n", hex)
+	}
+	return recommendations
 }
 
 func createColorImage(r, g, b int, path string) error {
