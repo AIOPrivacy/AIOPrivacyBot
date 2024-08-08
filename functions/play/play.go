@@ -21,7 +21,20 @@ func HandlePlayCommand(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 	}
 
 	if message.CommandArguments() == "" {
-		err := utils.SendMessage(message.Chat.ID, "需要使用参数", message.MessageID, bot)
+		err := utils.SendMessage(message.Chat.ID,
+			`<b>需要使用参数</b>
+	以下演示都以<b>A回复B</b>模拟！
+
+	<u>主动模式</u>
+	<code>/play@AIOPrivacyBot -t xxxxx</code> 可以成功触发 <b>A xxxxx了 B！</b>
+	<code>/play@AIOPrivacyBot -t xxxxx yyyyy</code> 可以成功触发 <b>A xxxxx B yyyyy</b>
+
+	<u>被动模式</u>
+	<code>/play@AIOPrivacyBot -p xxxxx</code> 可以成功触发 <b>A 被 B xxxxx了！</b>
+	<code>/play@AIOPrivacyBot -p xxxxx yyyyy</code> 可以成功触发 <b>B xxxxx A yyyyy</b>
+
+	<i>注意：可以使用英文 ' 或 " 包括发送内容来高于空格优先级，例如 <code>/play@AIOPrivacyBot -p "xx xxx" "yy yy y"</code></i>`,
+			message.MessageID, bot)
 		if err != nil {
 			log.Printf("Error sending message: %v", err)
 		}
@@ -31,7 +44,21 @@ func HandlePlayCommand(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 	args := parseArguments(message.CommandArguments())
 
 	if len(args) < 2 {
-		err := utils.SendMessage(message.Chat.ID, "需要更多参数", message.MessageID, bot)
+		err := utils.SendMessage(message.Chat.ID,
+			`<b>需要更多参数</b>
+	以下演示都以<b>A回复B</b>模拟！
+
+	<u>主动模式</u>
+	<code>/play@AIOPrivacyBot -t xxxxx</code> 可以成功触发 <b>A xxxxx了 B！</b>
+	<code>/play@AIOPrivacyBot -t xxxxx yyyyy</code> 可以成功触发 <b>A xxxxx B yyyyy</b>
+
+	<u>被动模式</u>
+	<code>/play@AIOPrivacyBot -p xxxxx</code> 可以成功触发 <b>A 被 B xxxxx了！</b>
+	<code>/play@AIOPrivacyBot -p xxxxx yyyyy</code> 可以成功触发 <b>B xxxxx A yyyyy</b>
+
+	<i>注意：可以使用英文 ' 或 " 包括发送内容来高于空格优先级，例如 <code>/play@AIOPrivacyBot -p "xx xxx" "yy yy y"</code></i>`,
+			message.MessageID, bot)
+
 		if err != nil {
 			log.Printf("Error sending message: %v", err)
 		}

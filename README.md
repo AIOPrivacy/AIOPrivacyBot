@@ -17,7 +17,6 @@
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
   <h3 align="center">AIOPrivacyBot</h3>
-
   <p align="center">
     一个尝试在保护用户隐私的前提下，提供各类功能的类命令行Telegram机器人。
     <br />
@@ -28,8 +27,9 @@
     ·
     <a href="https://github.com/iuu6/AIOPrivacyBot/issues">报告错误/提出更多内容</a>
     ·
-    <a href="https://t.me/AIOPrivacy">加入用户交流群组</a>
+    <a href="https://t.me/AIOPrivacy">用户交流群组</a>
   </p>
+
 </div>
 
 
@@ -256,7 +256,7 @@ x 表示 hex
 
 如果您有改进建议，请分叉该仓库并创建拉取请求。您也可以直接打开一个带有标签“增强”的问题。
 
-*等待完善*
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
