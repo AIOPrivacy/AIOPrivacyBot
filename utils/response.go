@@ -85,3 +85,18 @@ func SendMarkdownMessageWithInlineKeyboard(chatID int64, messageID int, text str
 	log.Printf("Markdown message with inline keyboard sent successfully to chat ID %d", chatID)
 	return nil
 }
+
+// SendPlainTextMessage 发送纯文本消息
+func SendPlainTextMessage(chatID int64, text string, messageID int, bot *tgbotapi.BotAPI) error {
+	log.Printf("Sending plain text message to chat ID %d: %s", chatID, text)
+	msg := tgbotapi.NewMessage(chatID, text)
+	msg.ParseMode = ""               // 不使用任何解析模式
+	msg.ReplyToMessageID = messageID // 回复到原始消息
+	_, err := bot.Send(msg)
+	if err != nil {
+		log.Printf("Error sending plain text message: %v", err)
+		return err
+	}
+	log.Printf("Plain text message sent successfully to chat ID %d", chatID)
+	return nil
+}
