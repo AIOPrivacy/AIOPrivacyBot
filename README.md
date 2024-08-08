@@ -27,6 +27,8 @@
     <a href="https://t.me/AIOPrivacyBot">查看演示</a>
     ·
     <a href="https://github.com/iuu6/AIOPrivacyBot/issues">报告错误/提出更多内容</a>
+    ·
+    <a href="https://t.me/AIOPrivacy">加入用户交流群组</a>
   </p>
 </div>
 
@@ -57,7 +59,7 @@
 
 
 
-## 关于此项目
+# 关于此项目
 
 ![Product Name Screen Shot][product-screenshot]
 
@@ -69,7 +71,7 @@
 
 
 
-### 由谁构建
+## 由谁构建
 
 本项目主要由Golang语言构建
 
@@ -77,39 +79,41 @@
 
 
 
-## 快速开始
+# 快速开始
 
-### 先决条件
+## 先决条件
 
 有一台可以正常运行二进制文件的电脑
 
-### 安装
+## 安装
 
 直接运行构建后的二进制文件即可。
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## 用法
+# 用法
 
 您可以向机器人发送`/help`来获取有关帮助文档。
+
+## 聊天触发类
 
 ### /play 动作触发功能
 
 以下演示都以**A回复B**模拟！
 
-#### 主动模式
+##### 主动模式
 
 `/play@AIOPrivacyBot -t xxxxx` 可以成功触发`A xxxxx了 B！`
 
 `/play@AIOPrivacyBot -t xxxxx yyyyy` 可以成功触发`A xxxxx B yyyyy`
 
-#### 被动模式
+##### 被动模式
 
 `/play@AIOPrivacyBot -p xxxxx` 可以成功触发`A 被 B xxxxx了！`
 
 `/play@AIOPrivacyBot -p xxxxx yyyyy` 可以成功触发`B xxxxx A yyyyy`
 
-#### 备注
+##### 备注
 注意：可以使用英文'或"包括发送内容来高于空格优先级，例如`/play@AIOPrivacyBot -p "xx xxx" "yy yy y"`
 
 ### /ask AI提问学术问题
@@ -123,26 +127,6 @@
 ### /status 查看系统信息
 
 您可以在私聊或群聊中发送`/status@AIOPrivacyBot`或`/status`，来查看机器人和系统的运行状态
-
-### 回复随机触发 AI聊天触发功能
-
-可调整概率的出现**笨笨的猫娘**AI玩耍！
-
-### 各类网址的安全过滤/检测
-
-机器人Inline模式下运作，您可以这样调用
-
-```
-@AIOPrivacyBot -check https://www.amazon.com/dp/exampleProduct/ref=sxin_0_pb?__mk_de_DE=%C3%85M%C3%85%C5%BD%C3%95%C3%91&keywords=tea&pd_rd_i=exampleProduct&pd_rd_r=8d39e4cd-1e4f-43db-b6e7-72e969a84aa5&pd_rd_w=1pcKM&pd_rd_wg=hYrNl&pf_rd_p=50bbfd25-5ef7-41a2-68d6-74d854b30e30&pf_rd_r=0GMWD0YYKA7X
-```
-
-### 内容网站的内容下载存储到telegraph
-
-机器人Inline模式下运作，您可以这样调用
-
-```
-@AIOPrivacyBot -view https://www.52pojie.cn/thread-143136-1-1.html
-```
 
 ### /admins 召唤所有管理员
 
@@ -171,15 +155,45 @@ x 表示 hex
 
 ### /color 颜色转换&色卡推荐
 
-`/color@AIOPrivacyBot`颜色转换&色卡推荐
+`/color@AIOPrivacyBot`获取颜色转换&色卡推荐，支持`RGB` `16进制` `颜色名称`
 
-支持RGB 16进制 颜色名称
+用法举例
+
+```
+/color@AIOPrivacyBot #ffffff
+/color@AIOPrivacyBot 255 255 255
+/color@AIOPrivacyBot Blue
+```
+
+## Inline 模式触发类
+
+### 各类网址的安全过滤/检测
+
+机器人Inline模式下运作，您可以这样调用
+
+```
+@AIOPrivacyBot -check https://www.amazon.com/dp/exampleProduct/ref=sxin_0_pb?__mk_de_DE=%C3%85M%C3%85%C5%BD%C3%95%C3%91&keywords=tea&pd_rd_i=exampleProduct&pd_rd_r=8d39e4cd-1e4f-43db-b6e7-72e969a84aa5&pd_rd_w=1pcKM&pd_rd_wg=hYrNl&pf_rd_p=50bbfd25-5ef7-41a2-68d6-74d854b30e30&pf_rd_r=0GMWD0YYKA7X
+```
+
+### 内容网站的内容下载存储到telegraph
+
+机器人Inline模式下运作，您可以这样调用
+
+```
+@AIOPrivacyBot -view https://www.52pojie.cn/thread-143136-1-1.html
+```
+
+## 其他触发类
+
+### 回复机器人随机触发 AI聊天触发功能
+
+70%概率的出现**笨笨的猫娘**AI玩耍！
 
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## 功能路线
+# 功能路线
 
 - [x] 指令化重构
 
@@ -236,7 +250,7 @@ x 表示 hex
 
 
 
-## 贡献指南
+# 贡献指南
 
 正是贡献让开源社区成为了学习、启发和创造的绝佳场所。我们**非常感谢**您的任何贡献。
 
