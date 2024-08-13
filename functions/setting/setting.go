@@ -5,22 +5,21 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strconv"
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-// Add the list of valid features
 var availableFeatures = []string{
 	"help", "play", "ask", "getid", "status", "admins",
-	"num", "string", "curconv", "color", "setting",
+	"num", "string", "curconv", "color", "setting", "ai_chat",
 }
 
 // Features that cannot be disabled
 var nonDisablableFeatures = []string{"setting"}
 
 func IsFeatureEnabled(db *sql.DB, groupID int64, featureName string) bool {
-	// Check if the feature is non-disablable
 	for _, feature := range nonDisablableFeatures {
 		if feature == featureName {
 			return true
@@ -31,7 +30,7 @@ func IsFeatureEnabled(db *sql.DB, groupID int64, featureName string) bool {
 	err := db.QueryRow("SELECT feature_off FROM group_setting WHERE groupid = ?", groupID).Scan(&featureOffList)
 	if err != nil && err != sql.ErrNoRows {
 		log.Printf("Error querying feature status: %v", err)
-		return true // Default to enabled if error occurs
+		return true
 	}
 
 	if featureOffList == "" {
@@ -56,8 +55,8 @@ func HandleSettingCommand(db *sql.DB, message *tgbotapi.Message, bot *tgbotapi.B
 	}
 
 	args := strings.Fields(message.CommandArguments())
-	if len(args) != 2 {
-		msg := tgbotapi.NewMessage(message.Chat.ID, "用法: /setting <enable/disable> <feature_name>")
+	if len(args) < 2 || (len(args) == 3 && args[0] != "enable") {
+		msg := tgbotapi.NewMessage(message.Chat.ID, "用法: /setting <enable/disable> <feature_name> [value]")
 		bot.Send(msg)
 		return
 	}
@@ -85,25 +84,55 @@ func HandleSettingCommand(db *sql.DB, message *tgbotapi.Message, bot *tgbotapi.B
 		return
 	}
 
-	var featureOffList string
-	err := db.QueryRow("SELECT feature_off FROM group_setting WHERE groupid = ?", message.Chat.ID).Scan(&featureOffList)
+	var featureOffList, optionalFeatures string
+	var currentValue *int
+	err := db.QueryRow("SELECT feature_off, optional_features, value_ai_chat FROM group_setting WHERE groupid = ?", message.Chat.ID).Scan(&featureOffList, &optionalFeatures, &currentValue)
 	if err != nil && err != sql.ErrNoRows {
 		log.Printf("Error querying feature status: %v", err)
 		return
 	}
 
 	disabledFeatures := strings.Split(featureOffList, ",")
+	enabledOptionalFeatures := strings.Split(optionalFeatures, ",")
 
 	if action == "enable" {
 		disabledFeatures = remove(disabledFeatures, feature)
+		if feature == "ai_chat" && len(args) == 3 {
+			value, err := strconv.Atoi(args[2])
+			if err != nil || value < 0 || value > 100 {
+				msg := tgbotapi.NewMessage(message.Chat.ID, "无效的值，请输入0到100之间的整数")
+				bot.Send(msg)
+				return
+			}
+			log.Printf("Setting AI chat trigger value to %d for groupID %d", value, message.Chat.ID)
+
+			// 使用 INSERT OR REPLACE INTO 确保值被正确写入
+			_, err = db.Exec(`
+				INSERT INTO group_setting (groupid, feature_off, optional_features, value_ai_chat)
+				VALUES (?, ?, ?, ?)
+				ON CONFLICT(groupid) DO UPDATE SET value_ai_chat = excluded.value_ai_chat`, message.Chat.ID, featureOffList, optionalFeatures, value)
+
+			if err != nil {
+				log.Printf("Error updating AI chat trigger value: %v", err)
+				return
+			}
+			if !contains(enabledOptionalFeatures, feature) {
+				enabledOptionalFeatures = append(enabledOptionalFeatures, feature)
+			}
+		}
 	} else if action == "disable" {
 		if !contains(disabledFeatures, feature) {
 			disabledFeatures = append(disabledFeatures, feature)
 		}
+		if contains(enabledOptionalFeatures, feature) {
+			enabledOptionalFeatures = remove(enabledOptionalFeatures, feature)
+		}
 	}
 
 	featureOffList = strings.Join(disabledFeatures, ",")
-	_, err = db.Exec("REPLACE INTO group_setting (groupid, feature_off) VALUES (?, ?)", message.Chat.ID, featureOffList)
+	optionalFeatures = strings.Join(enabledOptionalFeatures, ",")
+
+	_, err = db.Exec("INSERT INTO group_setting (groupid, feature_off, optional_features) VALUES (?, ?, ?) ON CONFLICT(groupid) DO UPDATE SET feature_off = excluded.feature_off, optional_features = excluded.optional_features", message.Chat.ID, featureOffList, optionalFeatures)
 	if err != nil {
 		log.Printf("Error updating feature status: %v", err)
 		return
@@ -161,13 +190,11 @@ func remove(slice []string, item string) []string {
 
 // validateInput ensures that the action and feature are safe from SQL injection
 func validateInput(action, feature string) bool {
-	// Allowed actions are only "enable" and "disable"
 	validActions := []string{"enable", "disable"}
 	if !contains(validActions, action) {
 		return false
 	}
 
-	// Ensure feature name only contains alphanumeric characters to prevent SQL injection
-	re := regexp.MustCompile("^[a-zA-Z0-9]+$")
+	re := regexp.MustCompile("^[a-zA-Z0-9_]+$")
 	return re.MatchString(feature)
 }

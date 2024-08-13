@@ -99,10 +99,11 @@ func initDatabase() {
 		log.Fatalf("Error opening database: %v", err)
 	}
 
-	// 创建 group_setting 表格
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS group_setting (
 		groupid INTEGER PRIMARY KEY,
-		feature_off TEXT
+		feature_off TEXT,
+		optional_features TEXT,
+		value_ai_chat INTEGER
 	)`)
 	if err != nil {
 		log.Fatalf("Error creating table: %v", err)
@@ -160,7 +161,7 @@ func processMessage(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 		} else if command == "setting" {
 			setting.HandleSettingCommand(db, message, bot, config.SuperAdmins)
 		}
-	} else if (message.Chat.IsGroup() || message.Chat.IsSuperGroup()) && isReplyToBot(message) && shouldTriggerResponse() {
+	} else if (message.Chat.IsGroup() || message.Chat.IsSuperGroup()) && isReplyToBot(message) && shouldTriggerResponse(message.Chat.ID) {
 		ai_chat.HandleAIChat(message, bot)
 	}
 }
@@ -180,10 +181,21 @@ func isReplyToBot(message *tgbotapi.Message) bool {
 	return false
 }
 
-func shouldTriggerResponse() bool {
+func shouldTriggerResponse(groupID int64) bool {
+	var triggerValue int
+	err := db.QueryRow("SELECT value_ai_chat FROM group_setting WHERE groupid = ?", groupID).Scan(&triggerValue)
+	if err != nil {
+		log.Printf("Error fetching AI chat trigger value: %v", err)
+		triggerValue = 0 // Default value
+	}
+
+	log.Printf("AI Chat Trigger Value: %d", triggerValue)
 	rand.Seed(time.Now().UnixNano())
 	randomValue := rand.Intn(100) + 1
-	return randomValue > 30
+	log.Printf("Random value generated: %d", randomValue)
+
+	// Adjust this logic based on your expectation
+	return randomValue <= triggerValue
 }
 
 func setBotCommands(bot *tgbotapi.BotAPI) {

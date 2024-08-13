@@ -97,7 +97,7 @@ func generateUserMessage(userInput string) string {
 // createAIRequest initializes the AI request payload.
 func createAIRequest(content string) AIRequest {
 	return AIRequest{
-		Model: "llama-3-70b",
+		Model: "mixtral-8x7b",
 		Messages: []struct {
 			Role    string `json:"role"`
 			Content string `json:"content"`
