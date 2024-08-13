@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -8,6 +9,9 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	_ "github.com/mattn/go-sqlite3"
 
 	"AIOPrivacyBot/functions/admins"
 	"AIOPrivacyBot/functions/ai_chat"
@@ -19,11 +23,10 @@ import (
 	"AIOPrivacyBot/functions/help"
 	"AIOPrivacyBot/functions/num"
 	"AIOPrivacyBot/functions/play"
+	"AIOPrivacyBot/functions/setting"
 	"AIOPrivacyBot/functions/status"
 	"AIOPrivacyBot/functions/stringcalc"
 	"AIOPrivacyBot/functions/view"
-
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 type Config struct {
@@ -36,6 +39,7 @@ type Config struct {
 var (
 	botUsername string
 	config      Config
+	db          *sql.DB
 )
 
 func main() {
@@ -66,6 +70,9 @@ func main() {
 	botUsername = bot.Self.UserName
 	log.Printf("Authorized on account %s", botUsername)
 
+	// Initialize SQLite database
+	initDatabase()
+
 	// Initialize check package with SafeBrowsingAPIKey
 	check.Init(config.SafeBrowsingAPIKey)
 
@@ -85,6 +92,25 @@ func main() {
 	}
 }
 
+func initDatabase() {
+	var err error
+	db, err = sql.Open("sqlite3", "./bot.db")
+	if err != nil {
+		log.Fatalf("Error opening database: %v", err)
+	}
+
+	// 创建 group_setting 表格
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS group_setting (
+		groupid INTEGER PRIMARY KEY,
+		feature_off TEXT
+	)`)
+	if err != nil {
+		log.Fatalf("Error creating table: %v", err)
+	}
+
+	log.Println("Database initialized successfully")
+}
+
 func handleUpdate(update tgbotapi.Update, bot *tgbotapi.BotAPI) {
 	if update.Message != nil {
 		log.Printf("Received message from %s: %s", update.Message.From.UserName, update.Message.Text)
@@ -100,6 +126,16 @@ func processMessage(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 	log.Printf("Processing message from %s: %s", message.From.UserName, message.Text)
 
 	if message.IsCommand() {
+		// 判断是否启用了该命令功能
+		if !setting.IsFeatureEnabled(db, message.Chat.ID, message.Command()) {
+			// msg := tgbotapi.NewMessage(message.Chat.ID, "该功能已被管理员关闭")
+			// sentMsg, _ := bot.Send(msg)
+			time.AfterFunc(5*time.Second, func() {
+				// bot.DeleteMessage(tgbotapi.NewDeleteMessage(message.Chat.ID, sentMsg.MessageID))
+			})
+			return
+		}
+
 		command := message.Command()
 		if command == "help" && (message.Chat.IsPrivate() || strings.Contains(message.Text, fmt.Sprintf("@%s", botUsername))) {
 			help.SendHelpMessage(message, bot)
@@ -121,6 +157,8 @@ func processMessage(message *tgbotapi.Message, bot *tgbotapi.BotAPI) {
 			curconv.HandleCurconvCommand(message, bot)
 		} else if command == "color" && (message.Chat.IsPrivate() || strings.Contains(message.Text, fmt.Sprintf("@%s", botUsername))) {
 			color.HandleColorCommand(message, bot)
+		} else if command == "setting" {
+			setting.HandleSettingCommand(db, message, bot, config.SuperAdmins)
 		}
 	} else if (message.Chat.IsGroup() || message.Chat.IsSuperGroup()) && isReplyToBot(message) && shouldTriggerResponse() {
 		ai_chat.HandleAIChat(message, bot)
@@ -160,6 +198,7 @@ func setBotCommands(bot *tgbotapi.BotAPI) {
 		{Command: "string", Description: "字符串编码"},
 		{Command: "curconv", Description: "货币汇率计算"},
 		{Command: "color", Description: "颜色转换&色卡推荐"},
+		{Command: "setting", Description: "管理群组设置"},
 	}
 
 	config := tgbotapi.NewSetMyCommands(commands...)
